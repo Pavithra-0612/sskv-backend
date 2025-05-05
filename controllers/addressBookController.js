@@ -4,16 +4,23 @@ import Address from '../models/addressBookModel.js';
 const addAddress = async (req, res) => {
   const { name, phone, street, number, postcode, city, state, email } = req.body;
 
-  // Validate required fields, including email
   if (!name || !phone || !street || !number || !postcode || !city || !state || !req.body.userId || !email) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
+  // 🔢 Phone and Pincode Validation
+  if (!/^\d{10}$/.test(phone)) {
+    return res.status(400).json({ message: 'Phone number must be exactly 10 digits.' });
+  }
+
+  if (!/^\d{6}$/.test(postcode)) {
+    return res.status(400).json({ message: 'Postcode must be exactly 6 digits.' });
+  }
+
   try {
-    console.log('Received userId (email):', req.body.userId);  // Log userId (email) to check it
     const address = new Address({
-      userId: req.body.userId,  // userId is the email to uniquely identify the user
-      email,                    // Storing email in the address entry
+      userId: req.body.userId,
+      email,
       name,
       phone,
       street,
@@ -29,6 +36,7 @@ const addAddress = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 // 🔵 Get all addresses for logged-in user
 const getAddresses = async (req, res) => {
@@ -91,6 +99,15 @@ const deleteAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
   const { name, phone, street, number, postcode, city, state, email } = req.body;
 
+  // 🔢 Phone and Pincode Validation
+  if (!/^\d{10}$/.test(phone)) {
+    return res.status(400).json({ message: 'Phone number must be exactly 10 digits.' });
+  }
+
+  if (!/^\d{6}$/.test(postcode)) {
+    return res.status(400).json({ message: 'Postcode must be exactly 6 digits.' });
+  }
+
   try {
     const address = await Address.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
@@ -107,6 +124,7 @@ const updateAddress = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 export default {
   addAddress,

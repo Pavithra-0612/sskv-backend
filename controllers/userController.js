@@ -71,6 +71,8 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a strong password" });
         }
 
+        
+
         // Validate phone number (optional, if phone is provided)
         if (phone && (!/^\d{10}$/.test(phone))) {
             return res.json({ success: false, message: "Please enter a valid 10-digit phone number" });
