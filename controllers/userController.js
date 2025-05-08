@@ -21,12 +21,12 @@ const loginUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "User doesn't exist. Please register first." });
         }
-
+        
         // Check if password matches
         const isMatch = await bcrypt.compare(password, user.password);
-
+        
         if (!isMatch) {
-            return res.status(401).json({ success: false, message: "Invalid credentials" });
+            return res.status(401).json({ success: false, message: "Password is incorrect" }); // updated
         }
 
         // Generate Token
@@ -133,5 +133,40 @@ const adminLogin = async (req, res) => {
     }
 }
 
+// Add this to your userController.js
+const changePassword = async (req, res) => {
+    try {
+        const { email, currentPassword, newPassword } = req.body;
 
-export { loginUser, registerUser, adminLogin }
+        if (!email || !currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Current password is incorrect" });
+        }
+
+        if (newPassword.length < 8) {
+            return res.status(400).json({ success: false, message: "Password should be at least 8 characters long" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ success: true, message: "Password changed successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+};
+
+
+
+export { loginUser, registerUser, adminLogin,changePassword }
