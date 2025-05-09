@@ -27,7 +27,7 @@ const addSupportMessage = async (req, res) => {
     // Save the support message to the database
     await supportMessage.save();
 
-    res.status(201).json({ message: 'Support message submitted successfully', supportMessage });
+    res.status(201).json({ message: 'Message submitted successfully', supportMessage });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
