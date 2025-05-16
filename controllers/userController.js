@@ -1,9 +1,9 @@
 import validator from "validator";
 // import bcrypt from "bcrypt"
 import bcrypt from "bcryptjs";
-
 import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js";
+import { sendEmail } from "../utils/mailer.js";
 
 
 const createToken = (id) => {
@@ -167,6 +167,34 @@ const changePassword = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
 
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
-export { loginUser, registerUser, adminLogin,changePassword }
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
+        const resetLink = `http://yourfrontend.com/reset-password/${token}`;
+
+        await sendEmail({
+            to: user.email,
+            subject: "Reset your password",
+            html: `
+                <h2>Hello ${user.name}</h2>
+                <p>Click <a href="${resetLink}">here</a> to reset your password.</p>
+                <p>This link will expire in 15 minutes.</p>
+            `
+        });
+
+        res.json({ success: true, message: "Reset link sent to your email" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+export { loginUser, registerUser, adminLogin,changePassword,forgotPassword }
