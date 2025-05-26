@@ -10,6 +10,7 @@ import orderRouter from './routes/orderRoute.js'
 import addressRouter from './routes/addressBookRoute.js';
 import supportRouter from './routes/supportRoute.js'
 import { singleProduct } from './controllers/productController.js'
+import wishlistrouter from './routes/wishlistRoute.js'
 
 // App Config
 const app = express()
@@ -27,7 +28,7 @@ app.use('/api/product',productRouter)
 app.use('/api/cart',cartRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/support', supportRouter);
-
+app.use('/api/wishlist',wishlistrouter);
 app.use('/api', addressRouter);
 
 
